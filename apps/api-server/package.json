@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts"
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "db:migrate": "knex --knexfile src/db/knexfile.ts migrate:latest --env development",
+    "db:make": "knex --knexfile src/db/knexfile.ts migrate:make"
   },
   "keywords": [],
   "author": "",
@@ -15,12 +17,15 @@
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.1.0",
+    "@types/pg": "^8.15.4",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
+    "knex": "^3.1.0",
     "pg": "^8.16.3",
+    "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.8.3"
   }
