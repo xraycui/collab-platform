@@ -1,7 +1,7 @@
 import db from '../db/connection'
 import bcrypt from 'bcrypt'
 
-export const registerUser = async (email: string, password: string) => {
+const registerUser = async (email: string, password: string) => {
   const existing = await db('users').where({email}).first()
   if(existing) throw new Error('Email aleady in use')
   
@@ -11,7 +11,7 @@ export const registerUser = async (email: string, password: string) => {
   return user
 }
 
-export const loginUser = async (email: string, password: string) => {
+const loginUser = async (email: string, password: string) => {
   const user = await db('users').where({email}).first()
   if(!user) throw new Error('Invalid email')
   
@@ -20,3 +20,10 @@ export const loginUser = async (email: string, password: string) => {
   
   return {id: user.id, email: user.email}
 }
+
+const authService = {
+  registerUser,
+  loginUser
+}
+
+export default authService
