@@ -2,7 +2,9 @@ import { Request, Response } from "express";
 import { Task } from "../mongo/models/Task";
 import { Comment } from "../mongo/models/Comment";
 import { Types } from "mongoose";
+import { getIO
 
+ } from "../realtime/io";
 export const listTasks = async (req: Request, res: Response) => {
   const boardId = req.params.boardId;
   const tasks = await Task.find({ boardId }).sort({ order: 1, createdAt: 1 });
@@ -17,6 +19,9 @@ export const createTask = async (req: Request, res: Response) => {
     boardId: new Types.ObjectId(boardId),
     title, description, status, assignees, dueDate, order, createdBy
   });
+
+  const io = getIO();
+  io.to(`board:${boardId}`).emit('task:created', task)
   res.status(201).json({ task });
 };
 

@@ -1,4 +1,4 @@
-import express, {Request, Response} from 'express'
+import express, { Request, Response } from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
 import path from 'path'
@@ -10,9 +10,13 @@ import authRouter from './routes/authRoute'
 import userRouter from './routes/userRoute'
 import boardRouter from './routes/boardRoute'
 import taskRouter from './routes/taskRoute'
+import jobRouter from './routes/jobRoute'
 
 import { connectMogo } from './mongo/connection'
+import { startNotificationSubscriber } from './notifications/subscriber'
+import { setIO
 
+ } from './realtime/io'
 dotenv.config({path: path.resolve(process.cwd(), '.env.dev')})
 
 const app = express()
@@ -23,6 +27,7 @@ app.use('/api/auth', authRouter)
 app.use('/api/user', userRouter)
 app.use('/api/boards', boardRouter)
 app.use('/api/boards', taskRouter)
+app.use('/api/job', jobRouter)
 
 // web socket server
 const server = http.createServer(app)
@@ -30,6 +35,7 @@ const io = new Server(server, {
     cors: { origin: "*", methods: ['GET', 'POST', 'PATCH']}
 })
 
+setIO(io)
 io.use((socket, next) => {
     try {
         const token = socket.handshake.auth?.token
@@ -44,7 +50,10 @@ io.use((socket, next) => {
 })
 
 io.on('connection', (socket) => {
-  const user = (socket as any).user;
+  const user = (socket as any).user as {id: string, email: string};
+  
+  // Join user room
+  socket.join(`user:${user.id}`)
 
   // Join board rooms (client will tell which board)
   socket.on("board:join", (boardId: string) => {
@@ -71,6 +80,7 @@ io.on('connection', (socket) => {
 
 async function start() {
     await connectMogo()
+    await startNotificationSubscriber()
     const PORT = process.env.PORT
     app.listen(PORT, () => {
         console.log(`API server is running on port ${PORT}`)
