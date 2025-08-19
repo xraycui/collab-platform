@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  postgres: 
+    image: postgres:15
+    container_name: collab_pg
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: collab_user
+      POSTGRES_PASSWORD: collab_pass
+      POSTGRES_DB: collab_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - backend
+  redis:
+    image: redis:7
+    container_name: collab_redis
+    ports:
+      - '6379:6379'
+    networks:
+      - backend
+  mongo:
+    image: mongo:7
+    container_name: collab_mongo
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongodata:/data/db
+    networks:
+      - backend
+  mongo-express:
+    image: mongo-express:1.0.2-18
+    container_name: collab_mongo_express
+    ports:
+      - '8081:8081'
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo
+    depends_on:
+      - 'mongo'
+    networks:
+      - backend
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: collab-rabbitmq
+    ports:
+      - '5672:5672' # AMQP
+      - '15672:15672' # UI
+    environment:
+      RABBITMQ_DEFAULT_USER: collab
+      RABBITMQ_DEFAULT_PASS: collab
+    networks:
+      - backend
+
+volumes:
+  pgdata:
+  mongodata:
+
+networks:
+  backend:

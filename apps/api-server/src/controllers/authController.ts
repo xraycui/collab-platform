@@ -1,12 +1,12 @@
-import { Request, Response } from "express"
-import { registerUser, loginUser} from '../services/authService'
-import { generateToken} from '../utils/jwt'
+import { NextFunction, Request, Response } from "express"
+import authService from '../services/authService'
+import { signAccessToken} from '../utils/jwt'
 
-export const register = async (req: Request, res: Response) => {
+export const register = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const {email, password} = req.body
-        const user = await registerUser(email, password)
-        const token = generateToken(user)
+        const user = await authService.registerUser(email, password)
+        const token = signAccessToken(user)
         res.status(201).json({user, token})
     } catch (err: any) {
         res.status(400).json({error: err.message})
@@ -16,8 +16,8 @@ export const register = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
     try {
         const {email, password} = req.body
-        const user = await loginUser(email, password)
-        const token = generateToken(user)
+        const user = await authService.loginUser(email, password)
+        const token = signAccessToken(user)
         res.status(200).json({user, token})
     } catch (err: any) {
         res.status(401).json({error: err.message})
