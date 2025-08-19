@@ -3,6 +3,7 @@ dotenv.config()
 import amqp from 'amqplib'
 import { sendMail } from './mailer'
 import { redis } from './redis'
+import { startSchedulerLoop } from "./scheduler"
 
 async function start() {
   const conn = await amqp.connect(process.env.AMQP_URL!)
@@ -38,6 +39,7 @@ async function start() {
     }
   })
 
+  await startSchedulerLoop(ch);
   console.log('Worker running. Queues: email.reminder, notifications.broadcast')
 }
 
