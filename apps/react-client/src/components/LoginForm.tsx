@@ -1,4 +1,6 @@
 import React, {useState, useEffect, FormEvent} from  "react"
+import { useAuth } from "../context/AuthContext"
+import './LoginForm.css'
 
 export default function LoginForm() {
   const [mode, setMode] = useState<'login' | 'register'>('login')
@@ -6,13 +8,14 @@ export default function LoginForm() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
+  const { login, register } = useAuth()
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setError(null)
     setLoading(true)
     try{
-     
+      mode === 'login' ? await login(email, password) : await register(email, password) 
     } catch (error: any) {
       setError(error?.message || 'Failed')
     } finally {
@@ -22,19 +25,17 @@ export default function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form className='login-form' onSubmit={handleSubmit}>
       <h2>{mode === 'login' ? 'Login' : 'Register'}</h2>
-      <div className="space" />
-      <label htmlFor="email">Email</label>
+      <label htmlFor="email">Email:</label>
       <input className="input" id="email" value={email} onChange={(e)=> {setEmail(e.target.value)}} />
       <label htmlFor="password">Password</label>
       <input className="input" id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-      {error && <div style={{color: 'red'}}>{error}</div>}
-      <div className="space"></div>
-      <div className="row" style={{ justifyContent: 'space-between'}}>
-        <button className="button" disabled={loading} type="submit">{loading ? '...' : (mode === 'login' ? 'Login On' : 'Create Account')}</button>
-        <button type="button" onClick={() => setMode(mode === 'login' ? 'register' : 'login')}>{mode === 'login' ? 'Need an account?' : 'Have an account?'}</button>
+      <div className="button-group" style={{ justifyContent: 'space-between'}}>
+        <button className="button" disabled={loading} type="submit">{loading ? '...' : (mode === 'login' ? 'Log On' : 'New Account')}</button>
+        <button type="button" onClick={() => setMode(mode === 'login' ? 'register' : 'login')}>{mode === 'login' ? 'Register' : 'Existing User'}</button>
       </div>
+      {error && <div style={{color: 'red'}}>{error}</div>}
     </form>
   )
 }

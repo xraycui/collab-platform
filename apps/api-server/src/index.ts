@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
 import path from 'path'
-import http from 'http'
+import http, { METHODS } from 'http'
 import { Server } from 'socket.io'
 import jwt from 'jsonwebtoken'
 
@@ -14,15 +14,19 @@ import jobRouter from './routes/jobRoute'
 
 import { connectMogo } from './mongo/connection'
 import { startNotificationSubscriber } from './notifications/subscriber'
-import { setIO
+import { setIO } from './realtime/io'
 
- } from './realtime/io'
-dotenv.config({path: path.resolve(process.cwd(), '.env.dev')})
+dotenv.config()
 
 const app = express()
-app.use(cors())
+app.use(cors({
+  origin: "http://localhost:3000",
+  credentials: true
+}));
+
 app.use(express.json())
 
+// rest api routers
 app.use('/api/auth', authRouter)
 app.use('/api/user', userRouter)
 app.use('/api/boards', boardRouter)
@@ -31,10 +35,7 @@ app.use('/api/job', jobRouter)
 
 // web socket server
 const server = http.createServer(app)
-const io = new Server(server, {
-    cors: { origin: "*", methods: ['GET', 'POST', 'PATCH']}
-})
-
+const io = new Server(server, { cors: { origin: "*", methods: ['GET', 'POST', 'PATCH']}})
 setIO(io)
 io.use((socket, next) => {
     try {
