@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { register, login } from "../controllers/authController";
 import { refresh, logout } from "../controllers/tokenController";
+
 const router = Router()
 
 router.post('/register', register )
